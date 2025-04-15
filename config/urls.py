@@ -18,15 +18,31 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from core.views import CustomUserViewSet, PostViewSet
+from core.views import CustomUserViewSet, MostLikedPostsViewSet, PostViewSet, UserRegisterView, RandomFollowersViewSet
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 # Criando o roteador
 router = DefaultRouter()
 router.register(r'users', CustomUserViewSet)
 router.register(r'posts', PostViewSet)
+router.register(r'most-liked-posts', MostLikedPostsViewSet, basename="most-liked-posts")
+router.register(r'random-users', RandomFollowersViewSet, basename="random-users")
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),  # Incluindo as rotas da API
+    path('api/', include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/register/', UserRegisterView.as_view(), name='register'),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
